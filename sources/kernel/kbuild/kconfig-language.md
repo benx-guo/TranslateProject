@@ -32,7 +32,7 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 每个配置项都有自己的依赖关系。这些依赖关系用于确定配置项的可见性。
 任何子项只有在其父项可见时才可见。
 
-## 菜单项
+## TODO:菜单项
 
 Most entries define a config option; all other entries help to organize
 them. A single configuration option is defined like this:
@@ -90,85 +90,34 @@ applicable everywhere (see syntax).
 
 -   默认值：\"default\" \<expr\> \[\"if\" \<expr\>\]
 
-    A config option can have any number of default values. If multiple
-    default values are visible, only the first defined one is active.
-    Default values are not limited to the menu entry where they are
-    defined. This means the default can be defined somewhere else or be
-    overridden by an earlier definition. The default value is only
-    assigned to the config symbol if no other value was set by the user
-    (via the input prompt above). If an input prompt is visible the
-    default value is presented to the user and can be overridden by him.
-    Optionally, dependencies only for this default value can be added
-    with \"if\".
-
     一个配置选项可以有任意数量的默认值。如果多个默认值可见，只有第一个定义的默认值有效。
     默认值不限于它们被定义的菜单项。这意味着默认值可以在其他地方定义，或被更早的定义覆盖。
     默认值只有在用户没有通过（上面的输入提示）设置其他值时才会分配给配置符号。如果输入
     提示可见，默认值会呈现给用户，并且可以被用户覆盖。可以选择性地使用 \"if\" 为该默认值添加
     依赖关系。
 
-> The default value deliberately defaults to \'n\' in order to avoid
-> bloating the build. With few exceptions, new config options should not
-> change this. The intent is for \"make oldconfig\" to add as little as
-> possible to the config from release to release.
->
-> 默认值刻意设置为 \'n\'，以避免构建膨胀。除了少数例外，新的配置选项不应该改变这一点。
-> 目的是让 \"make oldconfig\" 在每次发布时尽可能少地向配置添加内容。
+> 默认值被刻意设置为 \'n\'，以避免构建膨胀。除了少数例外，新的配置选项不应该改变这一默认行为。
+> 目的是让 \"make oldconfig\" 在每次发布时尽可能少地向配置中添加内容。
 >
 > 注意：
 >
 > :   值得设置 \"default y/m\" 的情况包括：
 >
->     a)  A new Kconfig option for something that used to always be
->         built should be \"default y\".
->
->         对于以前总是被构建的东西，
->         新的 Kconfig 选项应该是
->         "default y"。
->
->     b)  A new gatekeeping Kconfig option that hides/shows other
->         Kconfig options (but does not generate any code of its own),
->         should be \"default y\" so people will see those other
->         options.
->
->         新的门控 Kconfig 选项
->         （隐藏/显示其他 Kconfig 选项，
->         但本身不生成任何代码）
->         应该是 "default y"，
->         以便人们能看到其他选项。
->
->     c)  Sub-driver behavior or similar options for a driver that is
->         \"default n\". This allows you to provide sane defaults.
->
->         "default n" 驱动程序的
->         子驱动程序行为或类似选项。
->         这允许您提供合理的默认值。
->
->     d)  Hardware or infrastructure that everybody expects, such as
->         CONFIG_NET or CONFIG_BLOCK. These are rare exceptions.
->
->         每个人都期望的硬件或基础设施，
->         例如 CONFIG_NET 或
->         CONFIG_BLOCK。
+>     a)  对于以前总是被构建的东西，新的 Kconfig 选项应该是 \"default y\"。
+>     b)  新的总控型 Kconfig 选项，控制其他 Kconfig 选项的隐藏/显示(但自身不生成任何代码),
+>         应该是 \"default y\"，以便用户能看到其他选项。
+>     c)  对于一个 \"default n\" 驱动程序，其子驱动程序行为或类似选项可以被设置为默认启用。
+>         以便该驱动启动时提供合理的默认值。
+>     d)  每个人都期望的硬件或基础设施，例如 CONFIG_NET 或 CONFIG_BLOCK。
 >         这些是罕见的例外。
 
--   type definition + default value:
-
-    类型定义 + 默认值：
+-   类型定义 + 默认值：
 
         "def_bool"/"def_tristate" <expr> ["if" <expr>]
 
-    This is a shorthand notation for a type definition plus a value.
-    Optionally dependencies for this default value can be added with
-    \"if\".
+    这是类型定义加默认值的简写符号。可以选择性地使用 \"if\" 为该默认值添加依赖关系。
 
-    这是类型定义加值的简写符号。
-    可以选择性地使用 \"if\" 为
-    该默认值添加依赖关系。
-
--   dependencies: \"depends on\" \<expr\>
-
-    依赖关系："depends on" \<expr\>
+-   依赖关系：\"depends on\" \<expr\>
 
     This defines a dependency for this menu entry. If multiple
     dependencies are defined, they are connected with \'&&\'.
@@ -176,12 +125,8 @@ applicable everywhere (see syntax).
     (which also accept an \"if\" expression), so these two examples are
     equivalent:
 
-    这为该菜单条目定义一个依赖关系。
-    如果定义了多个依赖关系，
-    它们通过 '&&' 连接。
-    依赖关系应用于该菜单条目内的
-    所有其他选项（也接受 \"if\"
-    表达式），因此以下两个示例是
+    这为该菜单项定义一个依赖关系。如果定义了多个依赖关系，它们通过 '&&' 连接。
+    依赖关系应用于该菜单项内的所有其他选项（也接受 \"if\" 表达式），因此以下两个示例是
     等价的：
 
         bool "foo" if BAR
@@ -326,7 +271,7 @@ applicable everywhere (see syntax).
     如果条件为假，菜单块不会显示
     给用户（但其中包含的符号仍然
     可以被其他符号选择）。
-    它类似于单个菜单条目的条件
+    它类似于单个菜单项的条件
     \"prompt\" 属性。\"visible\"
     的默认值为 true。
 
@@ -378,7 +323,7 @@ the input range of tristate symbols. The tristate logic used in the
 expressions uses one more state than normal boolean logic to express the
 module state. Dependency expressions have the following syntax:
 
-依赖关系定义菜单条目的可见性，
+依赖关系定义菜单项的可见性，
 也可以减少三态符号的输入范围。
 表达式中使用的三态逻辑比普通
 布尔逻辑多一个状态来表示模块
@@ -450,8 +395,8 @@ expression evaluates to \'m\' or \'y\'.
 
 表达式可以具有 'n'、'm' 或 'y'
 的值（或分别为 0、1、2 用于
-计算）。当菜单条目的表达式求值为
-'m' 或 'y' 时，该菜单条目变为
+计算）。当菜单项的表达式求值为
+'m' 或 'y' 时，该菜单项变为
 可见。
 
 There are two types of symbols: constant and non-constant symbols.
@@ -478,7 +423,7 @@ quotes can be escaped using \'\'.
 The position of a menu entry in the tree is determined in two ways.
 First it can be specified explicitly:
 
-菜单条目在树中的位置通过两种
+菜单项在树中的位置通过两种
 方式确定。首先可以明确指定：
 
     menu "Network device support"
@@ -495,9 +440,9 @@ from the menu entry, e.g. this means the dependency \"NET\" is added to
 the dependency list of the config option NETDEVICES.
 
 \"menu\" ... \"endmenu\" 块内的
-所有条目成为 \"Network device
-support\" 的子菜单。所有子条目从
-菜单条目继承依赖关系，例如这意味着
+所有项成为 \"Network device
+support\" 的子菜单。所有子项从
+菜单项继承依赖关系，例如这意味着
 依赖关系 \"NET\" 被添加到配置
 选项 NETDEVICES 的依赖列表中。
 
@@ -509,19 +454,19 @@ true:
 
 生成菜单结构的另一种方法是通过
 分析依赖关系来完成的。如果一个
-菜单条目以某种方式依赖于前一个
-条目，它可以成为其子菜单。首先，
+菜单项以某种方式依赖于前一个
+项，它可以成为其子菜单。首先，
 前一个（父）符号必须是依赖列表的
 一部分，然后以下两个条件之一
 必须为真：
 
 -   the child entry must become invisible, if the parent is set to \'n\'
 
-    如果父级设置为 'n'，子条目必须变为不可见
+    如果父级设置为 'n'，子项必须变为不可见
 
 -   the child entry must only be visible, if the parent is visible:
 
-    子条目只有在父级可见时才可见：
+    子项只有在父级可见时才可见：
 
         config MODULES
         bool "Enable loadable module support"
@@ -550,10 +495,10 @@ The configuration file describes a series of menu entries, where every
 line starts with a keyword (except help texts). The following keywords
 end a menu entry:
 
-配置文件描述一系列菜单条目，
+配置文件描述一系列菜单项，
 每一行以一个关键字开头
 （帮助文本除外）。以下关键字
-结束一个菜单条目：
+结束一个菜单项：
 
 -   config
 -   menuconfig
@@ -565,7 +510,7 @@ end a menu entry:
 
 The first five also start the definition of a menu entry.
 
-前五个关键字也开始菜单条目的定义。
+前五个关键字也开始菜单项的定义。
 
 config:
 
@@ -590,11 +535,11 @@ show up under the menuconfig entry and not outside of it, every item
 from the \<config options\> list must depend on the menuconfig symbol.
 In practice, this is achieved by using one of the next two constructs:
 
-这类似于上面的简单配置条目，
+这类似于上面的简单配置项，
 但它还向前端提示，所有子选项应该
 显示为单独的选项列表。为了确保
 所有子选项真正显示在 menuconfig
-条目下而不是在其外部，
+项下而不是在其外部，
 \<config options\> 列表中的每个
 项目都必须依赖于 menuconfig 符号。
 实际上，这是通过使用以下两种
@@ -666,8 +611,8 @@ and only a single driver can be compiled/loaded into the kernel, but all
 drivers can be compiled as modules.
 
 虽然布尔选择只允许选择单个配置
-条目，但三态选择还允许将任意数量的
-配置条目设置为 'm'。如果单个
+项，但三态选择还允许将任意数量的
+配置项设置为 'm'。如果单个
 硬件存在多个驱动程序，并且只有
 一个驱动程序可以编译/加载到内核中，
 但所有驱动程序都可以编译为模块，
@@ -678,7 +623,7 @@ choice to \'n\' and no entry needs to be selected.
 
 选择接受另一个选项 \"optional\"，
 它允许将选择设置为 'n'，并且不需要
-选择任何条目。
+选择任何项。
 
 comment:
 
@@ -720,7 +665,7 @@ to all enclosed menu entries.
 
 这定义一个 if 块。依赖表达式
 \<expr\> 被附加到所有包含的
-菜单条目。
+菜单项。
 
 source:
 
