@@ -32,12 +32,9 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 每个配置项都有自己的依赖关系。这些依赖关系用于确定配置项的可见性。
 任何子项只有在其父项可见时才可见。
 
-## TODO:菜单项
+## 菜单项
 
-Most entries define a config option; all other entries help to organize
-them. A single configuration option is defined like this:
-
-TODO: 大多数配置项会定义一个可配置项；所有其他配置项用于帮助组织它们。
+大多数配置项会定义一个可配置项；所有其他配置项用于帮助组织它们。
 单个配置选项的定义如下：
 
     config MODVERSIONS
@@ -47,23 +44,12 @@ TODO: 大多数配置项会定义一个可配置项；所有其他配置项用�
         Usually, modules have to be recompiled whenever you switch to a new
         kernel.  ...
 
-Every line starts with a key word and can be followed by multiple
-arguments. \"config\" starts a new config entry. The following lines
-define attributes for this config option. Attributes can be the type of
-the config option, input prompt, dependencies, help text and default
-values. A config option can be defined multiple times with the same
-name, but every definition can have only a single input prompt and the
-type must not conflict.
-
-TODO: 每行都以一个关键字开头，后面可以跟多个参数。\"config\" 开始一个新的配置项。
+每行都以一个关键字开头，后面可以跟多个参数。\"config\" 开始一个新的配置项。
 后续行定义该配置选项的属性。属性可以是配置选项的类型、输入提示、依赖关系、
 帮助文本和默认值。一个配置选项可以用相同的名称定义多次，但每个定义只能有一个输入提示，
 并且类型不能冲突。
 
 ## 菜单属性
-
-A menu entry can have a number of attributes. Not all of them are
-applicable everywhere (see syntax).
 
 一个配置项可以有多个属性。并非所有属性都适用于任何地方（参见语法）。
 
@@ -80,10 +66,6 @@ applicable everywhere (see syntax).
         prompt "Networking support"
 
 -   输入提示：\"prompt\" \<prompt\> \[\"if\" \<expr\>\]
-
-    Every menu entry can have at most one prompt, which is used to
-    display to the user. Optionally dependencies only for this prompt
-    can be added with \"if\".
 
     每个菜单项最多只能有一个输入提示，用于向用户显示。可以选择性地使用 \"if\" 为该输入提示
     添加依赖关系（满足条件时显示）。
@@ -119,12 +101,6 @@ applicable everywhere (see syntax).
 
 -   依赖关系：\"depends on\" \<expr\>
 
-    This defines a dependency for this menu entry. If multiple
-    dependencies are defined, they are connected with \'&&\'.
-    Dependencies are applied to all other options within this menu entry
-    (which also accept an \"if\" expression), so these two examples are
-    equivalent:
-
     这为该菜单项定义一个依赖关系。如果定义了多个依赖关系，它们通过 '&&' 连接。
     依赖关系应用于该菜单项内的所有其他选项（也接受 \"if\" 表达式），因此以下两个示例是
     等价的：
@@ -138,63 +114,23 @@ applicable everywhere (see syntax).
         bool "foo"
         default y
 
--   reverse dependencies: \"select\" \<symbol\> \[\"if\" \<expr\>\]
+-   反向依赖：\"select\" \<symbol\> \[\"if\" \<expr\>\]
 
-    反向依赖："select" \<symbol\> \["if" \<expr\>\]
-
-    While normal dependencies reduce the upper limit of a symbol (see
-    below), reverse dependencies can be used to force a lower limit of
-    another symbol. The value of the current menu symbol is used as the
-    minimal value \<symbol\> can be set to. If \<symbol\> is selected
-    multiple times, the limit is set to the largest selection. Reverse
-    dependencies can only be used with boolean or tristate symbols.
-
-    虽然普通依赖关系降低符号的上限
-    （见下文），但反向依赖可用于
-    强制另一个符号的下限。
-    当前菜单符号的值用作 \<symbol\>
-    可以设置的最小值。如果 \<symbol\>
-    被选择多次，限制设置为最大的
-    选择。反向依赖只能用于布尔或
-    三态符号。
-
-    Note:
+    虽然普通依赖关系降低符号的上限（见下文），但反向依赖可用于强制另一个符号的下限。
+    当前菜单符号的值用作 \<symbol\> 可以设置的最小值。如果 \<symbol\> 被选择多次，
+    限制设置为最大的选择。反向依赖只能用于布尔或三态符号。
 
     注意：
 
-    :   select should be used with care. select will force a symbol to a
-        value without visiting the dependencies. By abusing select you
-        are able to select a symbol FOO even if FOO depends on BAR that
-        is not set. In general use select only for non-visible symbols
-        (no prompts anywhere) and for symbols with no dependencies. That
-        will limit the usefulness but on the other hand avoid the
-        illegal configurations all over.
+    :   select 应谨慎使用。select 会在不访问依赖关系的情况下强制将符号设为一个值。
+        滥用 select 时，即使 FOO 依赖于 BAR（ BAR 没有启用），FOO 仍会被启用。
+        一般来说，仅对不可见符号（任何地方都没有提示）和没有依赖关系的符号使用 select。
+        虽然这样会限制其实用性，但可以避免出现大量非法配置。
 
-        select 应谨慎使用。select 会在
-        不访问依赖关系的情况下强制将
-        符号设为一个值。通过滥用
-        select，即使 FOO 依赖于
-        未设置的 BAR，您也能够选择
-        符号 FOO。一般来说，仅对
-        不可见符号（任何地方都没有提示）
-        和没有依赖关系的符号使用 select。
-        这会限制其实用性，但另一方面
-        可以避免到处出现非法配置。
+-   弱反向依赖：\"imply\" \<symbol\> \[\"if\" \<expr\>\]
 
--   weak reverse dependencies: \"imply\" \<symbol\> \[\"if\" \<expr\>\]
-
-    弱反向依赖："imply" \<symbol\> \["if" \<expr\>\]
-
-    This is similar to \"select\" as it enforces a lower limit on
-    another symbol except that the \"implied\" symbol\'s value may still
-    be set to n from a direct dependency or with a visible prompt.
-
-    这类似于 \"select\"，它对另一个
-    符号强制执行下限，但 \"implied\"
-    符号的值仍然可以通过直接依赖关系
-    或可见提示设置为 n。
-
-    Given the following example:
+    这类似于 \"select\"，它对另一个符号强制执行下限，但 \"implied\" 符号的值
+    仍然可以通过直接依赖关系或可见提示设置为 n。
 
     给定以下示例：
 
@@ -205,8 +141,6 @@ applicable everywhere (see syntax).
         config BAZ
         tristate "baz"
         depends on BAR
-
-    The following values are possible:
 
     可能的值如下：
 
@@ -219,23 +153,10 @@ applicable everywhere (see syntax).
     > |               |               | -   N           |                |
     > +---------------+---------------+-----------------+----------------+
 
-    This is useful e.g. with multiple drivers that want to indicate
-    their ability to hook into a secondary subsystem while allowing the
-    user to configure that subsystem out without also having to unset
-    these drivers.
+    这在例如多个驱动程序希望指示它们能够挂钩到次要子系统，同时允许用户配置出该子系统而
+    不必取消设置这些驱动程序时很有用。
 
-    这在例如多个驱动程序希望指示
-    它们能够挂钩到次要子系统，
-    同时允许用户配置出该子系统而
-    不必取消设置这些驱动程序时
-    很有用。
-
-    Note: If the combination of FOO=y and BAR=m causes a link error, you
-    can guard the function call with IS_REACHABLE():
-
-    注意：如果 FOO=y 和 BAR=m 的
-    组合导致链接错误，您可以使用
-    IS_REACHABLE() 保护函数调用：
+    注意：如果 FOO=y 和 BAR=m 的组合导致链接错误，您可以使用 IS_REACHABLE() 保护函数调用：
 
         foo_init()
         {
@@ -244,12 +165,7 @@ applicable everywhere (see syntax).
             ...
         }
 
-    Note: If the feature provided by BAZ is highly desirable for FOO,
-    FOO should imply not only BAZ, but also its dependency BAR:
-
-    注意：如果 BAZ 提供的功能对
-    FOO 非常有益，FOO 不仅应该
-    imply BAZ，还应该 imply
+    注意：如果 BAZ 提供的功能对 FOO 非常有益，FOO 不仅应该 imply BAZ，还应该 imply
     其依赖项 BAR：
 
         config FOO
@@ -257,64 +173,34 @@ applicable everywhere (see syntax).
         imply BAR
         imply BAZ
 
--   limiting menu display: \"visible if\" \<expr\>
+-   限制菜单显示：\"visible if\" \<expr\>
 
-    限制菜单显示："visible if" \<expr\>
-
-    This attribute is only applicable to menu blocks, if the condition
-    is false, the menu block is not displayed to the user (the symbols
-    contained there can still be selected by other symbols, though). It
-    is similar to a conditional \"prompt\" attribute for individual menu
-    entries. Default value of \"visible\" is true.
-
-    此属性仅适用于菜单块，
-    如果条件为假，菜单块不会显示
-    给用户（但其中包含的符号仍然
-    可以被其他符号选择）。
-    它类似于单个菜单项的条件
-    \"prompt\" 属性。\"visible\"
+    此属性仅适用于菜单块，如果条件为假，菜单块不会显示给用户（但其中包含的符号仍然
+    可以被其他符号选择）。它类似于单个菜单项的条件 \"prompt\" 属性。\"visible\"
     的默认值为 true。
 
--   numerical ranges: \"range\" \<symbol\> \<symbol\> \[\"if\"
+-   数值范围：\"range\" \<symbol\> \<symbol\> \[\"if\"
     \<expr\>\]
-
-    数值范围："range" \<symbol\> \<symbol\> \["if" \<expr\>\]
 
     This allows to limit the range of possible input values for int and
     hex symbols. The user can only input a value which is larger than or
     equal to the first symbol and smaller than or equal to the second
     symbol.
 
-    这允许限制 int 和 hex 符号的
-    可能输入值范围。用户只能输入
-    大于或等于第一个符号且小于或
-    等于第二个符号的值。
+    这允许限制 int 和 hex 符号的可能输入值范围。用户只能输入大于或等于第一个符号且
+    小于或等于第二个符号的值。
 
--   help text: \"help\"
-
-    帮助文本："help"
+-   帮助文本：\"help\"
 
     This defines a help text. The end of the help text is determined by
     the indentation level, this means it ends at the first line which
     has a smaller indentation than the first line of the help text.
 
-    这定义帮助文本。帮助文本的结束
-    由缩进级别确定，这意味着它在
-    第一个缩进小于帮助文本第一行的
-    行处结束。
+    这定义帮助文本。帮助文本的结束由缩进级别确定，这意味着它在第一个缩进小于帮助文本
+    第一行的行处结束。
 
--   module attribute: \"modules\" This declares the symbol to be used as
-    the MODULES symbol, which enables the third modular state for all
-    config symbols. At most one symbol may have the \"modules\" option
-    set.
-
-    模块属性："modules" 这声明符号
-    用作 MODULES 符号，它为所有
-    配置符号启用第三个模块化状态。
-    最多一个符号可以设置 \"modules\"
-    选项。
-
-## Menu dependencies
+-   模块属性："modules" 这声明符号用作 MODULES 符号，它为所有配置符号启用第三个模块化
+    状态。最多一个符号可以设置 \"modules\"选项。
 
 ## 菜单依赖关系
 
@@ -323,11 +209,8 @@ the input range of tristate symbols. The tristate logic used in the
 expressions uses one more state than normal boolean logic to express the
 module state. Dependency expressions have the following syntax:
 
-依赖关系定义菜单项的可见性，
-也可以减少三态符号的输入范围。
-表达式中使用的三态逻辑比普通
-布尔逻辑多一个状态来表示模块
-状态。依赖表达式具有以下语法：
+依赖关系定义菜单项的可见性，也可以减少三态符号的输入范围。表达式中使用的三态逻辑比普通
+布尔逻辑多一个状态来表示模块状态。依赖表达式具有以下语法：
 
     <expr> ::= <symbol>                           (1)
              <symbol> '=' <symbol>                (2)
@@ -341,82 +224,32 @@ module state. Dependency expressions have the following syntax:
              <expr> '&&' <expr>                   (7)
              <expr> '||' <expr>                   (8)
 
-Expressions are listed in decreasing order of precedence.
-
 表达式按优先级递减顺序列出。
 
-(1) Convert the symbol into an expression. Boolean and tristate symbols
-    are simply converted into the respective expression values. All
-    other symbol types result in \'n\'.
-
-    将符号转换为表达式。布尔和
-    三态符号简单地转换为相应的
-    表达式值。所有其他符号类型的
+(1) 将符号转换为表达式。布尔和三态符号简单地转换为相应的表达式值。所有其他符号类型的
     结果为 'n'。
 
-(2) If the values of both symbols are equal, it returns \'y\', otherwise
-    \'n\'.
+(2) 如果两个符号的值相等，返回 'y'，否则返回 'n'。
 
-    如果两个符号的值相等，返回 'y'，否则返回 'n'。
+(3) 如果两个符号的值相等，返回 'n'，否则返回 'y'。
 
-(3) If the values of both symbols are equal, it returns \'n\', otherwise
-    \'y\'.
+(4) 如果 \<symbol1\> 的值分别小于、大于、小于等于或大于等于 \<symbol2\> 的值，
+    返回 \'y\'，否则返回 \'n\'。
 
-    如果两个符号的值相等，返回 'n'，否则返回 'y'。
+(5) 返回表达式的值。用于覆盖优先级。
 
-(4) If value of \<symbol1\> is respectively lower, greater,
-    lower-or-equal, or greater-or-equal than value of \<symbol2\>, it
-    returns \'y\', otherwise \'n\'.
+(6) 返回 (2-/expr/) 的结果。
 
-    如果 \<symbol1\> 的值分别低于、
-    大于、小于或等于或大于或等于
-    \<symbol2\> 的值，返回 'y'，
-    否则返回 'n'。
+(7) 返回 min(/expr/, /expr/) 的结果。
 
-(5) Returns the value of the expression. Used to override precedence.
+(8) 返回 max(/expr/, /expr/) 的结果。
 
-    返回表达式的值。用于覆盖优先级。
+表达式可以具有 \'n\'，\'m\' 或 \'y\' 的值（或分别为 0，1，2 用于计算）。
+当菜单项的表达式求值为 \'m\' 或 \'y\' 时，该菜单项变为可见。
 
-(6) Returns the result of (2-/expr/).
-
-    返回 (2-/expr/) 的结果。
-
-(7) Returns the result of min(/expr/, /expr/).
-
-    返回 min(/expr/, /expr/) 的结果。
-
-(8) Returns the result of max(/expr/, /expr/).
-
-    返回 max(/expr/, /expr/) 的结果。
-
-An expression can have a value of \'n\', \'m\' or \'y\' (or 0, 1, 2
-respectively for calculations). A menu entry becomes visible when its
-expression evaluates to \'m\' or \'y\'.
-
-表达式可以具有 'n'、'm' 或 'y'
-的值（或分别为 0、1、2 用于
-计算）。当菜单项的表达式求值为
-'m' 或 'y' 时，该菜单项变为
-可见。
-
-There are two types of symbols: constant and non-constant symbols.
-Non-constant symbols are the most common ones and are defined with the
-\'config\' statement. Non-constant symbols consist entirely of
-alphanumeric characters or underscores. Constant symbols are only part
-of expressions. Constant symbols are always surrounded by single or
-double quotes. Within the quote, any other character is allowed and the
-quotes can be escaped using \'\'.
-
-有两种类型的符号：常量符号和
-非常量符号。非常量符号是最常见的，
-使用 'config' 语句定义。
-非常量符号完全由字母数字字符或
-下划线组成。常量符号只是表达式的
-一部分。常量符号总是被单引号或
-双引号包围。在引号内，允许任何
-其他字符，引号可以使用 '' 转义。
-
-## Menu structure
+有两种类型的符号：常量符号和非常量符号。非常量符号是最常见的，使用 \'config\' 语句定义。
+非常量符号完全由字母数字字符或下划线组成。常量符号只是表达式的一部分。常量符号总是被单引号或
+双引号包围。在引号内，允许任何其他字符，引号可以使用 \'\' 转义。
 
 ## 菜单结构
 
@@ -486,8 +319,6 @@ MODVERSIONS 直接依赖于 MODULES，
 这意味着它只有在 MODULES 不是 'n'
 时才可见。另一方面，注释仅在
 MODULES 设置为 'n' 时可见。
-
-## Kconfig syntax
 
 ## Kconfig 语法
 
@@ -699,8 +530,6 @@ comment.
 '#' 字符表示源文件注释的开始。
 该行的其余部分是注释。
 
-## Kconfig hints
-
 ## Kconfig 提示
 
 This is a collection of Kconfig tips, most of which aren\'t obvious at
@@ -712,9 +541,7 @@ files.
 而且大多数已成为多个 Kconfig
 文件中的惯用法。
 
-### Adding common features and make the usage configurable
-
-### 添加通用功能并使用法可配置
+### 添加通用功能并且使用法可配置
 
 It is a common idiom to implement a feature/functionality that are
 relevant for some architectures but not all. The recommended way to do
@@ -777,8 +604,6 @@ select 的限制，它会强制将配置
 GENERIC_IOMAP，我们避免了 select
 强制将符号设置为 'y' 的情况。
 
-### Adding features that need compiler support
-
 ### 添加需要编译器支持的功能
 
 There are several features that need compiler support. The recommended
@@ -806,8 +631,6 @@ C 源文件公开编译器能力，
     config CC_HAS_FOO
       def_bool $(success,$(srctree)/scripts/cc-check-foo.sh $(CC))
 
-### Build as module only
-
 ### 仅作为模块构建
 
 To restrict a component build to module-only, qualify its config symbol
@@ -823,8 +646,6 @@ with \"depends on m\". E.g.:
 limits FOO to module (=m) or disabled (=n).
 
 将 FOO 限制为模块 (=m) 或禁用 (=n)。
-
-### Compile-testing
 
 ### 编译测试
 
@@ -848,8 +669,6 @@ where the dependency is not met.
 检测错误。请注意，编译测试的代码在
 不满足依赖关系的系统上运行时应
 避免崩溃。
-
-### Architecture and platform dependencies
 
 ### 架构和平台依赖关系
 
@@ -902,8 +721,6 @@ compile-testing rule above, leading to:
 > :   bool \"Support for foo hardware\" depends on ARCH_FOO_VENDOR \|\|
 >     COMPILE_TEST
 
-### Optional dependencies
-
 ### 可选依赖关系
 
 Some drivers are able to optionally use a feature from another module or
@@ -945,8 +762,6 @@ same dependency, a helper symbol can be used, like:
     config BAR_OPTIONAL
       def_tristate BAR || !BAR
 
-### Kconfig recursive dependency limitations
-
 ### Kconfig 递归依赖限制
 
 If you\'ve hit the Kconfig error: \"recursive dependency detected\"
@@ -983,8 +798,6 @@ Kconfig 符号之间存在循环关系，
 希望尝试解决此限制的热心开发人员
 应阅读下一小节。
 
-### Simple Kconfig recursive issue
-
 ### 简单的 Kconfig 递归问题
 
 Read: Documentation/kbuild/Kconfig.recursion-issue-01
@@ -997,8 +810,6 @@ Test with:
 
     make KBUILD_KCONFIG=Documentation/kbuild/Kconfig.recursion-issue-01 allnoconfig
 
-### Cumulative Kconfig recursive issue
-
 ### 累积的 Kconfig 递归问题
 
 Read: Documentation/kbuild/Kconfig.recursion-issue-02
@@ -1010,8 +821,6 @@ Test with:
 测试方法：
 
     make KBUILD_KCONFIG=Documentation/kbuild/Kconfig.recursion-issue-02 allnoconfig
-
-### Practical solutions to kconfig recursive issue
 
 ### kconfig 递归问题的实用解决方案
 
@@ -1110,8 +919,6 @@ and one or more \"depends on\".
 
     相同错误。
 
-### Future kconfig work
-
 ### 未来的 kconfig 工作
 
 Work on kconfig is welcomed on both areas of clarifying semantics and on
@@ -1127,14 +934,14 @@ limitations or requirements such as the ones dealing with recursive
 dependencies.
 
 欢迎在澄清语义和评估使用完整
-SAT 求解器方面对 kconfig 进行
-工作。完整的 SAT 求解器可能是
+SAT 解析器方面对 kconfig 进行
+工作。完整的 SAT 解析器可能是
 理想的，以启用更复杂的依赖映射
-和/或查询，例如 SAT 求解器的一个
+和/或查询，例如 SAT 解析器的一个
 可能用例可能是处理当前已知的递归
 依赖问题。目前尚不清楚这是否会
 解决此类问题，但这种评估是理想的。
-如果对完整 SAT 求解器的支持证明
+如果对完整 SAT 解析器的支持证明
 过于复杂或无法解决递归依赖问题，
 Kconfig 至少应该具有清晰且定义
 明确的语义，这些语义还应解决和
@@ -1147,8 +954,6 @@ on both of these in the next two subsections.
 欢迎在 Kconfig 上对这两个领域
 进行进一步的工作。我们在接下来的
 两个小节中详细说明这两个方面。
-
-### Semantics of Kconfig
 
 ### Kconfig 的语义
 
@@ -1192,7 +997,7 @@ Linux Kconfig files[^6].
 一个这样的案例是在 Kconfig 推断
 语义的布尔抽象中表达，将 Kconfig
 逻辑转换为布尔公式，并在此基础上
-运行 SAT 求解器以查找死代码/功能
+运行 SAT 解析器以查找死代码/功能
 （始终不活动），使用此方法在
 Linux 中发现了 114 个死功能[^4]
 （第 8 节：有效性威胁）。基于[^5]中
@@ -1218,9 +1023,7 @@ Kconfig 是领先的工业可变性建模
 可变性建模语言（如 Kconfig）中
 推导语义[^9]。
 
-### Full SAT solver for Kconfig
-
-### Kconfig 的完整 SAT 求解器
+### Kconfig 的完整 SAT 解析器
 
 Although SAT solvers[^10] haven\'t yet been used by Kconfig directly, as
 noted in the previous subsection, work has been done however to express
@@ -1239,10 +1042,10 @@ upstream but also help maintain it long term. Interested developers
 should visit:
 
 尽管如前一小节中所述，Kconfig 尚未
-直接使用 SAT 求解器[^10]，但已经
+直接使用 SAT 解析器[^10]，但已经
 完成了在布尔抽象中表达 Kconfig 的
 推断语义以将 Kconfig 逻辑转换为
-布尔公式并在其上运行 SAT 求解器的
+布尔公式并在其上运行 SAT 解析器的
 工作[^11]。另一个已知的相关项目是
 CADOS[^12]（前身为 VAMOS[^13]）
 及其工具，主要是 undertaker[^14]，
@@ -1250,9 +1053,9 @@ CADOS[^12]（前身为 VAMOS[^13]）
 的基本概念是从 Kconfig 中提取
 可变性模型，并将它们与从 CPP
 #ifdefs 和构建规则中提取的命题
-公式一起放入 SAT 求解器，以便
+公式一起放入 SAT 解析器，以便
 查找死代码、死文件和死符号。
-如果在 Kconfig 上使用 SAT 求解器是
+如果在 Kconfig 上使用 SAT 解析器是
 理想的，一种方法是评估以某种方式在
 Kconfig 上重新利用此类工作。
 现有项目的导师有足够的兴趣不仅
