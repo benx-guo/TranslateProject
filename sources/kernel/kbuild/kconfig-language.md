@@ -14,7 +14,7 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 
 ## 简介
 
-配置数据库是以树状结构组织的配置项集合：
+配置数据库是一个由配置选项组成的树形结构：
 
     +- Code maturity level options
     |  +- Prompt for development and/or incomplete code/drivers
@@ -29,12 +29,12 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
     |     +- Kernel module loader
     +- ...
 
-每个配置项都有自己的依赖关系。这些依赖关系用于确定配置项的可见性。
-任何子项只有在其父项可见时才可见。
+每个条目都有自己的依赖关系。这些依赖关系确定了该条目的可见性。
+任何子条目只有在其父条目可见时才可见。
 
-## 菜单项
+## 菜单条目
 
-大多数配置项会定义一个可配置项；所有其他配置项用于帮助组织它们。
+大多数条目会定义一个配置选项；所有其他条目用于帮助组织它们。
 单个配置选项的定义如下：
 
     config MODVERSIONS
@@ -44,50 +44,49 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
         Usually, modules have to be recompiled whenever you switch to a new
         kernel.  ...
 
-每行都以一个关键字开头，后面可以跟多个参数。\"config\" 开始一个新的配置项。
-后续行定义该配置选项的属性。属性可以是配置选项的类型、输入提示、依赖关系、
+每行都以关键字开头，后面可以跟多个参数。\"config\" 开始了一个新的配置条目。
+后续的行定义该配置选项的属性。属性可以是配置选项的类型、输入提示、依赖关系、
 帮助文本和默认值。一个配置选项可以用相同的名称定义多次，但每个定义只能有一个输入提示，
 并且类型不能冲突。
 
 ## 菜单属性
 
-一个配置项可以有多个属性。并非所有属性都适用于任何地方（参见语法）。
+一个菜单条目可以有多个属性。并非所有属性都适用于任意地方（参见语法）。
 
 -   类型定义：\"bool\"/\"tristate\"/\"string\"/\"hex\"/\"int\"
 
-    每个配置选项都必须有一个类型。只有两种基本类型：tristate 和 string；
+    每个配置选项都必须指定类型。只有两种基本类型：tristate 和 string；
     其他类型都基于这两种。类型定义可以选择性地接受一个输入提示，因此以下两个示例是等价的：
 
         bool "Networking support"
 
-    and:
+    和:
 
         bool
         prompt "Networking support"
 
 -   输入提示：\"prompt\" \<prompt\> \[\"if\" \<expr\>\]
 
-    每个菜单项最多只能有一个输入提示，用于向用户显示。可以选择性地使用 \"if\" 为该输入提示
-    添加依赖关系（满足条件时显示）。
+    每个菜单条目最多只能有一个输入提示，用于向用户显示。
+    可以选择性地使用 \"if\" 为该输入提示添加依赖关系（满足条件时显示）。
 
 -   默认值：\"default\" \<expr\> \[\"if\" \<expr\>\]
 
     一个配置选项可以有任意数量的默认值。如果多个默认值可见，只有第一个定义的默认值有效。
-    默认值不限于它们被定义的菜单项。这意味着默认值可以在其他地方定义，或被更早的定义覆盖。
-    默认值只有在用户没有通过（上面的输入提示）设置其他值时才会分配给配置符号。如果输入
-    提示可见，默认值会呈现给用户，并且可以被用户覆盖。可以选择性地使用 \"if\" 为该默认值
-    添加依赖关系。
+    默认值并不局限于定义它的菜单条目中。这意味着默认值可以在其他地方定义，或被更早的定义覆盖。
+    只有当用户尚未通过输入提示设置该配置符号时，默认值才会被赋予该配置符号。如果输入提示可见，
+    默认值会显示给用户，并且可以被用户覆盖。可以选择性地使用 \"if\" 为该默认值添加依赖关系。
 
-> 默认值被刻意设置为 \'n\'，以避免构建膨胀。除了少数例外，新的配置选项不应该改变这一默认行为。
-> 目的是让 \"make oldconfig\" 在每次发布时尽可能少地向配置中添加内容。
+> 默认值被特意设置为 \'n\'，以避免构建体积膨胀。除了少数例外，新的配置选项不应该改变这一默认设置。
+> 目的是让 \"make oldconfig\" 在不同版本之间尽可能少的向已有的配置中添加新内容。
 >
 > 注意：
 >
 > :   值得设置 \"default y/m\" 的情况包括：
 >
->     a)  对于以前总是被构建的东西，新的 Kconfig 选项应该是 \"default y\"。
->     b)  新的总控型 Kconfig 选项，控制其他 Kconfig 选项的隐藏/显示(但自身不生成任何代码),
->         应该是 \"default y\"，以便用户能看到其他选项。
+>     a)  对于之前总是被构建的功能，新引入的 Kconfig 选项应该设置为 \"default y\"。
+>     b)  作为总控开关（gatekeeping）的 Kconfig 选项（仅用于显示/隐藏其他选项，而自身不生成任何代码），
+>         应该设置为 \"default y\"，以便用户能看到其他选项。
 >     c)  对于一个 \"default n\" 驱动程序，其子驱动程序行为或类似选项可以被设置为默认启用。
 >         以便该驱动启动时提供合理的默认值。
 >     d)  每个人都期望的硬件或基础设施，例如 CONFIG_NET 或 CONFIG_BLOCK。
@@ -99,16 +98,16 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 
     这是类型定义加默认值的简写符号。可以选择性地使用 \"if\" 为该默认值添加依赖关系。
 
--   依赖关系：\"depends on\" \<expr\>
+-   依赖关系：\"depends on\" \<expr\> ::Tag Here
 
-    这为该菜单项定义一个依赖关系。如果定义了多个依赖关系，它们通过 '&&' 连接。
-    依赖关系应用于该菜单项内的所有其他选项（也接受 \"if\" 表达式），因此以下两个示例是
-    等价的：
+    这为该菜单条目定义一个依赖关系。如果定义了多个依赖关系，它们通过 '&&' 连接。
+    依赖关系应用于该菜单条目下的所有其他选项（也接受 \"if\" 表达式），
+    因此以下两个示例是等价的：
 
         bool "foo" if BAR
         default y if BAR
 
-    and:
+    和:
 
         depends on BAR
         bool "foo"
@@ -118,14 +117,14 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 
     虽然普通依赖关系降低符号的上限（见下文），但反向依赖可用于强制另一个符号的下限。
     当前菜单符号的值用作 \<symbol\> 可以设置的最小值。如果 \<symbol\> 被选择多次，
-    限制设置为最大的选择。反向依赖只能用于布尔或三态符号。
+    限制设置为最大的选择。反向依赖只能用于 bool 或 tristate。
 
     注意：
 
-    :   select 应谨慎使用。select 会在不访问依赖关系的情况下强制将符号设为一个值。
-        滥用 select 时，即使 FOO 依赖于 BAR（ BAR 没有启用），FOO 仍会被启用。
-        一般来说，仅对不可见符号（任何地方都没有提示）和没有依赖关系的符号使用 select。
-        虽然这样会限制其实用性，但可以避免出现大量非法配置。
+    ：select 应谨慎使用。select 会在不访问依赖关系的情况下强制将符号设为一个值。
+    滥用 select 时，即使 FOO 依赖于 BAR（ BAR 没有启用），FOO 仍会被启用。
+    一般来说，仅对不可见符号（任何地方都没有提示）和没有依赖关系的符号使用 select。
+    虽然这样会限制其实用性，但可以避免出现大量非法配置。
 
 -   弱反向依赖：\"imply\" \<symbol\> \[\"if\" \<expr\>\]
 
@@ -182,19 +181,10 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 -   数值范围：\"range\" \<symbol\> \<symbol\> \[\"if\"
     \<expr\>\]
 
-    This allows to limit the range of possible input values for int and
-    hex symbols. The user can only input a value which is larger than or
-    equal to the first symbol and smaller than or equal to the second
-    symbol.
-
     这允许限制 int 和 hex 符号的可能输入值范围。用户只能输入大于或等于第一个符号且
     小于或等于第二个符号的值。
 
 -   帮助文本：\"help\"
-
-    This defines a help text. The end of the help text is determined by
-    the indentation level, this means it ends at the first line which
-    has a smaller indentation than the first line of the help text.
 
     这定义帮助文本。帮助文本的结束由缩进级别确定，这意味着它在第一个缩进小于帮助文本
     第一行的行处结束。
@@ -204,13 +194,8 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 
 ## 菜单依赖关系
 
-Dependencies define the visibility of a menu entry and can also reduce
-the input range of tristate symbols. The tristate logic used in the
-expressions uses one more state than normal boolean logic to express the
-module state. Dependency expressions have the following syntax:
-
-依赖关系定义菜单项的可见性，也可以减少三态符号的输入范围。表达式中使用的三态逻辑比普通
-布尔逻辑多一个状态来表示模块状态。依赖表达式具有以下语法：
+依赖关系定义菜单项的可见性，也可以减少 tristate 符号的输入范围。表达式中使用的三态逻辑比普通
+ boolean 逻辑多一个状态来表示模块状态。依赖表达式具有以下语法：
 
     <expr> ::= <symbol>                           (1)
              <symbol> '=' <symbol>                (2)
@@ -226,7 +211,7 @@ module state. Dependency expressions have the following syntax:
 
 表达式按优先级递减顺序列出。
 
-(1) 将符号转换为表达式。布尔和三态符号简单地转换为相应的表达式值。所有其他符号类型的
+(1) 将符号转换为表达式。bool 和 tristate 简单地转换为相应的表达式值。所有其他符号类型的
     结果为 'n'。
 
 (2) 如果两个符号的值相等，返回 'y'，否则返回 'n'。
@@ -290,10 +275,6 @@ MODVERSIONS 直接依赖于 MODULES，这意味着它只有在 MODULES 不是 \'
 
 ## Kconfig 语法
 
-The configuration file describes a series of menu entries, where every
-line starts with a keyword (except help texts). The following keywords
-end a menu entry:
-
 配置文件描述一系列菜单项，每一行以一个关键字开头（帮助文本除外）。以下关键字
 结束一个菜单项：
 
@@ -318,13 +299,6 @@ menuconfig:
 
     "menuconfig" <symbol>
     <config options>
-
-This is similar to the simple config entry above, but it also gives a
-hint to front ends, that all suboptions should be displayed as a
-separate list of options. To make sure all the suboptions will really
-show up under the menuconfig entry and not outside of it, every item
-from the \<config options\> list must depend on the menuconfig symbol.
-In practice, this is achieved by using one of the next two constructs:
 
 这类似于上面的简单配置项，但它还向前端提示，所有子选项应该显示为单独的选项列表。为了确保
 所有子选项真正显示在 menuconfig 项下而不是在其外部，\<config options\> 列表中的每个
@@ -374,7 +348,7 @@ choices:
 如果没有为选择指定类型，其类型将由组中第一个选择元素的类型确定，或者如果没有任何选择
 元素指定类型，则保持未知。
 
-虽然布尔选择只允许选择单个配置项，但三态选择还允许将任意数量的配置项设置为 \'m\'。
+虽然 bool 选择只允许选择单个配置项，但 tristate 选择还允许将任意数量的配置项设置为 \'m\'。
 如果单个硬件存在多个驱动程序，并且只有一个驱动程序可以编译/加载到内核中，但所有驱动程序
 都可以编译为模块，则可以使用此功能。
 
@@ -565,7 +539,7 @@ Kconfig 不进行递归依赖解析；这对 Kconfig 文件编写者有一些影
 > > b1) 将所有 \"select FOO\" 交换为 \"depends on FOO\"，或
 > >
 > > b2) 将所有 \"depends on FOO\" 交换为 \"select FOO\"
-> >     
+> >
 a) 的解决方案可以通过示例 Kconfig 文件 
 Documentation/kbuild/Kconfig.recursion-issue-01 测试，通过从 CORE_BELL_A_ADVANCED 
 中删除 \"select CORE\"，因为由于 CORE_BELL_A 依赖于 CORE，这已经是隐含的。
