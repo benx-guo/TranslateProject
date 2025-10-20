@@ -98,7 +98,7 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 
     这是类型定义加默认值的简写符号。可以选择性地使用 \"if\" 为该默认值添加依赖关系。
 
--   依赖关系：\"depends on\" \<expr\> ::Tag Here
+-   依赖关系：\"depends on\" \<expr\>
 
     这为该菜单条目定义一个依赖关系。如果定义了多个依赖关系，它们通过 '&&' 连接。
     依赖关系应用于该菜单条目下的所有其他选项（也接受 \"if\" 表达式），
@@ -115,9 +115,9 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
 
 -   反向依赖：\"select\" \<symbol\> \[\"if\" \<expr\>\]
 
-    虽然普通依赖关系降低符号的上限（见下文），但反向依赖可用于强制另一个符号的下限。
-    当前菜单符号的值用作 \<symbol\> 可以设置的最小值。如果 \<symbol\> 被选择多次，
-    限制设置为最大的选择。反向依赖只能用于 bool 或 tristate。
+    普通依赖关系限制符号的上限（见下文），而反向依赖可用于强制提升另一个符号的下限。
+    当前菜单符号的值，会被作为选中符号的最小值。如果一个符号被多个地方 select，
+    它的值会被设为这些选择中“最高”的那个值。反向依赖只能用于 boolean 或 tristate。
 
     注意：
 
@@ -126,7 +126,7 @@ link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do
     一般来说，仅对不可见符号（任何地方都没有提示）和没有依赖关系的符号使用 select。
     虽然这样会限制其实用性，但可以避免出现大量非法配置。
 
--   弱反向依赖：\"imply\" \<symbol\> \[\"if\" \<expr\>\]
+-   弱反向依赖：\"imply\" \<symbol\> \[\"if\" \<expr\>\]::Tag Here
 
     这类似于 \"select\"，它对另一个符号强制执行下限，但 \"implied\" 符号的值
     仍然可以通过直接依赖关系或可见提示设置为 n。
